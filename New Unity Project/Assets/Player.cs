@@ -2,48 +2,66 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : PhysicsObject
 {
-    private Rigidbody2D rb2d;
+    public float maxSpeed = 7;
+    public float jumpTakeOffSpeed = 7;
+
     private Transform model;
     private Animator animator;
     private bool facingRight = true;
+    private bool jumping = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        rb2d = GetComponent<Rigidbody2D>();
         model = transform.GetChild(0);
         animator = model.GetComponent<Animator>();
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void ComputeVelocity()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        Vector2 movement = new Vector2(moveHorizontal, 0);
-        rb2d.MovePosition(rb2d.position + movement * Time.deltaTime);
+        Vector2 move = Vector2.zero;
 
-        if (moveHorizontal != 0)
+        if (!jumping)
+            move.x = Input.GetAxis ("Horizontal");
+
+        if (move.x != 0 && grounded)
             animator.SetBool("isWalking", true);
         else
             animator.SetBool("isWalking", false);
 
-        if (moveHorizontal < 0 && facingRight)
+        if (move.x < 0 && facingRight)
         {
             facingRight = false;
             StopAllCoroutines();
-            StartCoroutine(faceLeft(model.eulerAngles.y));
+            StartCoroutine(FaceLeft(model.eulerAngles.y));
         }
-        else if (moveHorizontal > 0 && !facingRight)
+        else if (move.x > 0 && !facingRight)
         {
             facingRight = true;
             StopAllCoroutines();
-            StartCoroutine(faceRight(model.eulerAngles.y));
+            StartCoroutine(FaceRight(model.eulerAngles.y));
         }
+
+        if (Input.GetButtonDown("Jump") && grounded)
+        {
+            StartCoroutine(Jump());
+            animator.SetBool("jumping", true);
+        }
+        else if (Input.GetButtonUp("Jump"))
+        {
+            if (velocity.y > 0)
+                velocity.y = velocity.y * .5f;
+        } else if (grounded && animator.GetBool("jumping")){
+            animator.SetBool("jumping", false);
+        }
+
+        targetVelocity = move * maxSpeed;
     }
 
-    IEnumerator faceLeft(float yAngle)
+
+    IEnumerator FaceLeft(float yAngle)
     {
         var steps = Mathf.Floor(Mathf.Abs(-90 - yAngle) / 5);
         for (var i = 0; i < steps; i++)
@@ -55,7 +73,7 @@ public class Player : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator faceRight(float yAngle)
+    IEnumerator FaceRight(float yAngle)
     {
         var steps = Mathf.Floor(Mathf.Abs(90 - yAngle) / 5);
         for (var i = 0; i < steps; i++)
@@ -64,6 +82,15 @@ public class Player : MonoBehaviour
             yield return null;
         }
         model.eulerAngles = new Vector3(0, 90, 0);
+        yield return null;
+    }
+
+    IEnumerator Jump()
+    {
+        jumping = true;
+        yield return new WaitForSeconds(.2f);
+        jumping = false;
+        velocity.y = jumpTakeOffSpeed;
         yield return null;
     }
 }
