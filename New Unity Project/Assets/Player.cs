@@ -12,10 +12,11 @@ public class Player : PhysicsObject
     private Animator animator;
     private bool facingRight = true;
     private bool jumping = false;
-    private bool canJump = false;
+    private bool canJump = true;
     private bool punching = false;
     private bool dashing = false;
-    private bool canDash = false;
+    private bool canDash = true;
+    private Coroutine turn;
 
     // Start is called before the first frame update
     void Start()
@@ -28,15 +29,15 @@ public class Player : PhysicsObject
     {
         if (grounded)
         {            
-            canJump = true;
-            if (!punching && !canDash && !dashing)
-                StartCoroutine(DashCooldown(1f));
+            canJump = true;            
         }
 
         Vector2 move = Vector2.zero;
 
         if (!jumping && !punching)
             move.x = Input.GetAxis ("Horizontal");
+        if (!grounded)
+            move.x = move.x * 1.5f;
 
         if (move.x != 0 && grounded)
             animator.SetBool("isWalking", true);
@@ -46,14 +47,16 @@ public class Player : PhysicsObject
         if (move.x < 0 && facingRight && !jumping && !punching)
         {
             facingRight = false;
-            StopAllCoroutines();
-            StartCoroutine(FaceLeft(model.eulerAngles.y));
+            if (turn != null)
+                StopCoroutine(turn);
+            turn = StartCoroutine(FaceLeft(model.eulerAngles.y));
         }
         else if (move.x > 0 && !facingRight && !jumping && !punching)
         {
             facingRight = true;
-            StopAllCoroutines();
-            StartCoroutine(FaceRight(model.eulerAngles.y));
+            if (turn != null)
+                StopCoroutine(turn);
+            turn = StartCoroutine(FaceRight(model.eulerAngles.y));
         }
 
         if (Input.GetButtonDown("Jump") && canJump && !punching)
@@ -70,10 +73,10 @@ public class Player : PhysicsObject
             animator.SetBool("jumping", false);
         }
         if (Input.GetButtonDown("Fire1") && canDash)
-        {
-            canDash = false;
+        {            
             dashing = true;
-            StartCoroutine("Dash");
+            canDash = false;
+            StartCoroutine(Dash(facingRight));
         }
         targetVelocity = move * maxSpeed;
     }
@@ -88,6 +91,7 @@ public class Player : PhysicsObject
             yield return null;
         }
         model.eulerAngles = new Vector3(0, 270, 0);
+        turn = null;
         yield return null;
     }
 
@@ -100,6 +104,7 @@ public class Player : PhysicsObject
             yield return null;
         }
         model.eulerAngles = new Vector3(0, 90, 0);
+        turn = null;
         yield return null;
     }
 
@@ -113,41 +118,43 @@ public class Player : PhysicsObject
         yield return null;
     }
 
-    IEnumerator Dash()
+    IEnumerator Dash(bool facing)
     {
         if (punching)
             yield break;
-        velocity.y = 0;
-        gravityModifier = 0.1f;
+        int xMod = 1;
+        if (!facing)
+            xMod = -1;
+        velocity.y = Mathf.Max(0, velocity.y);        
         punching = true;      
-        animator.SetTrigger("punch");
-        yield return new WaitForSeconds(1f);        
+        animator.SetTrigger("punch");        
+        for (double i=0; i<=1; i += Time.deltaTime)
+        {
+            velocity.y = Mathf.Max(0, velocity.y);
+            yield return null;
+        }
         for (var i = 0; i < 3; i++)
         {
-            velocity.y = 0;
-            int xMod = 1;
-            if (!facingRight)
-                xMod = -1;
+            velocity.y = Mathf.Max(0, velocity.y);
             targetVelocity = new Vector2(dashSpeed * xMod, 0);
             yield return null;
         }
         canJump = true;
         punching = false;
-        gravityModifier = 1f;
         for (var i = 0; i < 37; i++)
-        {            
-            int xMod = 1;
-            if (!facingRight)
-                xMod = -1;
+        {   
             targetVelocity = new Vector2(dashSpeed * xMod, 0);
             yield return null;
         }
         dashing = false;
+        StartCoroutine(DashCooldown(1f));
     }
 
     IEnumerator DashCooldown(float waitTime)
     {
         yield return new WaitForSeconds(waitTime);
+        while (!grounded)
+            yield return null;        
         canDash = true;
     }
 }

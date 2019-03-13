@@ -36,7 +36,7 @@ public class PhysicsObject : MonoBehaviour
     void Update()
     {
         targetVelocity = Vector2.zero;
-        ComputeVelocity();
+        ComputeVelocity();             
     }
 
     protected virtual void ComputeVelocity()
@@ -74,7 +74,8 @@ public class PhysicsObject : MonoBehaviour
             hitBufferList.Clear();
             for (int i = 0; i < count; i++)
             {
-                hitBufferList.Add(hitBuffer[i]);
+                if(!hitBuffer[i].collider.isTrigger)
+                    hitBufferList.Add(hitBuffer[i]);
             }
 
             for (int i = 0; i < hitBufferList.Count; i++)
