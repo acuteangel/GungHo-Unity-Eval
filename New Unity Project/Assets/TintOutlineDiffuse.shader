@@ -1,113 +1,79 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Outlined/Diffuse" {
-	Properties{
-		_Color("Main Color", Color) = (.5,.5,.5,1)
-		_OutlineColor("Outline Color", Color) = (0,0,0,1)
-		_Outline("Outline width", Range(.002, 0.03)) = .005
-		_MainTex("Base (RGB)", 2D) = "white" { }
+Shader "Custom/DiffuseOutline" {
+	Properties
+	{
+		_MainTex("Main Texture", 2D) = "white" {}
+		_Color("Main Color", Color) = (1,1,1,1)
+		_OutlineColor("Outline color", Color) = (1, 1, 1, 1)
+		_OutlineWidth("Outline width", Range(1.0, 5.0)) = 1.01
 	}
 
-		CGINCLUDE
-#include "UnityCG.cginc"
+	CGINCLUDE
+	#include "UnityCG.cginc"
 
 		struct appdata {
-		float4 vertex : POSITION;
-		float3 normal : NORMAL;
-	};
+			float4 vertex : POSITION;
+			float3 normal : NORMAL;
+			float2 texcoord : TEXCOORD0;
+		};
 
-	struct v2f {
-		float4 pos : POSITION;
-		float4 color : COLOR;
-	};
+		struct v2f {
+			float4 pos : SV_POSITION;
+			float3 normal : NORMAL;
+			float2 texcoord : TEXCOORD0;
+		};
 
-	uniform float _Outline;
-	uniform float4 _OutlineColor;
+		float4 _OutlineColor;
+		float _OutlineWidth;
 
-	v2f vert(appdata v) {
-		// just make a copy of incoming vertex data but scaled according to normal direction
-		v2f o;
-		o.pos = UnityObjectToClipPos(v.vertex);
+		v2f vert(appdata v) {
+			v.vertex.xyz *= _OutlineWidth;
 
-		float3 norm = mul((float3x3)UNITY_MATRIX_IT_MV, v.normal);
-		float2 offset = TransformViewToProjection(norm.xy);
+			v2f o;
+			o.pos = UnityObjectToClipPos(v.vertex);
+			return o;
+		}
 
-		o.pos.xy += offset * o.pos.z * _Outline;
-		o.color = _OutlineColor;
-		return o;
-	}
 	ENDCG
 
-		SubShader{
-		//Tags {"Queue" = "Geometry+100" }
-CGPROGRAM
-#pragma surface surf Lambert
+	SubShader
+	{
+		Pass 
+		{
+			ZWrite Off
 
-sampler2D _MainTex;
-fixed4 _Color;
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
 
-struct Input {
-	float2 uv_MainTex;
-};
-
-void surf(Input IN, inout SurfaceOutput o) {
-	fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
-	o.Albedo = c.rgb;
-	o.Alpha = c.a;
-}
-ENDCG
-
-// note that a vertex shader is specified here but its using the one above
-Pass {
-	Name "OUTLINE"
-	Tags { "LightMode" = "Always" }
-	Cull Front
-	ZWrite On
-	ColorMask RGB
-	Blend SrcAlpha OneMinusSrcAlpha
-	//Offset 50,50
-
-	CGPROGRAM
-	#pragma vertex vert
-	#pragma fragment frag
-	half4 frag(v2f i) :COLOR { return i.color; }
-	ENDCG
-}
-	}
-
-		SubShader{
-	CGPROGRAM
-	#pragma surface surf Lambert
-
-	sampler2D _MainTex;
-	fixed4 _Color;
-
-	struct Input {
-		float2 uv_MainTex;
-	};
-
-	void surf(Input IN, inout SurfaceOutput o) {
-		fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
-		o.Albedo = c.rgb;
-		o.Alpha = c.a;
-	}
-	ENDCG
-
-			Pass {
-				Name "OUTLINE"
-				Tags { "LightMode" = "Always" }
-				Cull Front
-				ZWrite On
-				ColorMask RGB
-				Blend SrcAlpha OneMinusSrcAlpha
-
-				CGPROGRAM
-				#pragma vertex vert
-				#pragma exclude_renderers gles xbox360 ps3
-				ENDCG
-				SetTexture[_MainTex] { combine primary }
+			half4 frag(v2f i) : COLOR{
+				return _OutlineColor;
 			}
-}
+			ENDCG
+		}
 
-Fallback "Diffuse"
+		Pass
+		{
+			ZWrite On
+
+			Material{
+				Diffuse[_Color]
+				Ambient[_Color]
+			}
+
+			Lighting On
+
+			SetTexture[_MainTex]
+			{
+				ConstantColor[_Color]
+			}
+
+			SetTexture[_MainTex]{
+				Combine previous * primary DOUBLE
+			}
+		}
+	}
+
 }

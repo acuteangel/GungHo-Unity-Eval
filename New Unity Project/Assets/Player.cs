@@ -27,6 +27,8 @@ public class Player : PhysicsObject
 
     protected override void ComputeVelocity()
     {
+        if (transform.position.y < -20)
+            transform.position = Vector3.zero;
         if (grounded)
         {            
             canJump = true;            
@@ -142,7 +144,7 @@ public class Player : PhysicsObject
         canJump = true;
         punching = false;
         for (var i = 0; i < 37; i++)
-        {   
+        {
             targetVelocity = new Vector2(dashSpeed * xMod, 0);
             yield return null;
         }

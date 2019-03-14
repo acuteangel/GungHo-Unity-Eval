@@ -74,8 +74,7 @@ public class PhysicsObject : MonoBehaviour
             hitBufferList.Clear();
             for (int i = 0; i < count; i++)
             {
-                if(!hitBuffer[i].collider.isTrigger)
-                    hitBufferList.Add(hitBuffer[i]);
+                hitBufferList.Add(hitBuffer[i]);
             }
 
             for (int i = 0; i < hitBufferList.Count; i++)
