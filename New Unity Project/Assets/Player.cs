@@ -143,9 +143,21 @@ public class Player : PhysicsObject
         }
         canJump = true;
         punching = false;
-        for (var i = 0; i < 37; i++)
+        int duration = 37;
+        float currentSpeed = dashSpeed;
+        for (var i = 0; i < duration; i++)
         {
-            targetVelocity = new Vector2(dashSpeed * xMod, 0);
+            if (grounded)
+                currentSpeed = currentSpeed * (duration-1)/duration;
+            targetVelocity = new Vector2(currentSpeed * xMod, 0);
+            yield return null;
+        }
+        while (currentSpeed > 0.1f)
+        {
+            currentSpeed = currentSpeed * 4 / 5;
+            if (grounded)
+                currentSpeed = currentSpeed * (duration - 1) / duration;
+            targetVelocity = new Vector2(currentSpeed * xMod, 0);
             yield return null;
         }
         dashing = false;
