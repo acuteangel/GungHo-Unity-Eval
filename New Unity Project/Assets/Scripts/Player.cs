@@ -80,7 +80,7 @@ public class Player : PhysicsObject
             canDash = false;
             StartCoroutine(Dash(facingRight));
         }
-        targetVelocity = move * maxSpeed;
+        targetVelocity += move * maxSpeed;
     }
 
 

@@ -11,9 +11,9 @@ Shader "Custom/DiffuseOutline" {
 	}
 
 		CGINCLUDE
-#include "UnityCG.cginc"
+		#include "UnityCG.cginc"
 
-			struct appdata {
+		struct appdata {
 			float4 vertex : POSITION;
 			float3 normal : NORMAL;
 			float2 texcoord : TEXCOORD0;
