@@ -1,7 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Custom/DiffuseOutline2" {
+﻿Shader "Custom/DiffuseOutline2" {
 	Properties
 	{
 		_MainTex("Main Texture", 2D) = "white" {}
@@ -41,7 +38,7 @@ Shader "Custom/DiffuseOutline2" {
 			o.pos += float4(-_OutlineWidth, 0, -0.1, 0);
 			return o;
 		}
-		
+
 		v2f vert03(appdata v) {
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);
@@ -49,7 +46,7 @@ Shader "Custom/DiffuseOutline2" {
 			return o;
 		}
 
-		v2f vert04(appdata v) {	
+		v2f vert04(appdata v) {
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);
 			o.pos += float4(0, -_OutlineWidth, -0.1, 0);

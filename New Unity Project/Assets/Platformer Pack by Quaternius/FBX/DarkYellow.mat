@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: DarkYellow
-  m_Shader: {fileID: 4800000, guid: f8d61ff9b2983084d861eb937f667d30, type: 3}
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -60,6 +60,7 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
+    - _Diffuse: 1
     - _DstBlend: 0
     - _FirstOutlineWidth: 0.001
     - _GlossMapScale: 1
@@ -68,12 +69,14 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
+    - _Outline: 1
     - _OutlineWidth: 1.01
     - _Parallax: 0.02
     - _SecondOutlineWidth: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Tint: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
