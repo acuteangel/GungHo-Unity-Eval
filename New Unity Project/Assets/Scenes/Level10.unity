@@ -4323,8 +4323,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edc42aeaac47c5644bf2de7c04e74aa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bottomLeft: {x: -40, y: 10}
-  topRight: {x: 40, y: 60}
+  bottomLeft: {x: -30, y: 0}
+  topRight: {x: 30, y: 30}
 --- !u!4 &1362280678
 Transform:
   m_ObjectHideFlags: 0

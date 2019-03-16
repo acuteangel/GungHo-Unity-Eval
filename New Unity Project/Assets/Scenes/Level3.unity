@@ -2346,7 +2346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edc42aeaac47c5644bf2de7c04e74aa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bottomLeft: {x: -40, y: 30}
+  bottomLeft: {x: -40, y: 0}
   topRight: {x: 40, y: 50}
 --- !u!4 &536092386
 Transform:
@@ -3368,6 +3368,7 @@ MonoBehaviour:
   maxSpeed: 3
   jumpTakeOffSpeed: 17
   dashSpeed: 14
+  startPosition: {x: 0, y: 0}
 --- !u!1001 &742526409
 PrefabInstance:
   m_ObjectHideFlags: 0
