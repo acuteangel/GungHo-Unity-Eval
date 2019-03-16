@@ -8,12 +8,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LightRed
-  m_Shader: {fileID: 4800000, guid: 3876bfd8d369c4403aa3fc14c3004afa, type: 3}
+  m_Shader: {fileID: 4800000, guid: f8d61ff9b2983084d861eb937f667d30, type: 3}
   m_ShaderKeywords: _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -68,8 +68,8 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _Outline: 0.0044
-    - _OutlineWidth: 1.06
+    - _Outline: 0.002
+    - _OutlineWidth: 1.03
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecShininess: 10
@@ -82,5 +82,5 @@ Material:
     - _Color: {r: 0.34237936, g: 0.07004916, b: 0.05245835, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
-    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}

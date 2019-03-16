@@ -1,58 +1,138 @@
-﻿Shader "Unlit/TestShader"
-{
-    Properties
-    {
-        _MainTex ("Texture", 2D) = "white" {}
-    }
-    SubShader
-    {
-        Tags { "RenderType"="Opaque" }
-        LOD 100
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-        Pass
-        {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
+Shader "Custom/DiffuseOutline2" {
+	Properties
+	{
+		_MainTex("Main Texture", 2D) = "white" {}
+		_Color("Main Color", Color) = (1,1,1,1)
+		_OutlineColor("Outline color", Color) = (1, 1, 1, 1)
+		_OutlineWidth("Outline width", Range(0, 1.0)) = .25
+	}
 
-            #include "UnityCG.cginc"
+		CGINCLUDE
+#include "UnityCG.cginc"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
+			struct appdata {
+			float4 vertex : POSITION;
+			float3 normal : NORMAL;
+			float2 texcoord : TEXCOORD0;
+		};
 
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
-                float4 vertex : SV_POSITION;
-            };
+		struct v2f {
+			float4 pos : SV_POSITION;
+			float3 normal : NORMAL;
+			float2 texcoord : TEXCOORD0;
+		};
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+		float4 _OutlineColor;
+		float _OutlineWidth;
 
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
-                return o;
-            }
+		v2f vert01(appdata v) {
+			v2f o;
+			o.pos = UnityObjectToClipPos(v.vertex);
+			o.pos += float4(_OutlineWidth, 0, -0.1, 0);
+			return o;
+		}
 
-            fixed4 frag (v2f i) : SV_Target
-            {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
-                return col;
-            }
-            ENDCG
-        }
-    }
+		v2f vert02(appdata v) {
+			v2f o;
+			o.pos = UnityObjectToClipPos(v.vertex);
+			o.pos += float4(-_OutlineWidth, 0, -0.1, 0);
+			return o;
+		}
+		
+		v2f vert03(appdata v) {
+			v2f o;
+			o.pos = UnityObjectToClipPos(v.vertex);
+			o.pos += float4(0, _OutlineWidth, -0.1, 0);
+			return o;
+		}
+
+		v2f vert04(appdata v) {	
+			v2f o;
+			o.pos = UnityObjectToClipPos(v.vertex);
+			o.pos += float4(0, -_OutlineWidth, -0.1, 0);
+			return o;
+		}
+
+		ENDCG
+
+			SubShader
+		{
+			Tags {"Queue" = "Transparent"}
+			Pass
+			{
+				ZWrite Off
+
+				CGPROGRAM
+				#pragma vertex vert01
+				#pragma fragment frag
+
+				half4 frag(v2f i) : COLOR{
+					return _OutlineColor;
+				}
+				ENDCG
+			}
+			Pass
+			{
+				ZWrite Off
+
+				CGPROGRAM
+				#pragma vertex vert02
+				#pragma fragment frag
+
+				half4 frag(v2f i) : COLOR{
+					return _OutlineColor;
+				}
+				ENDCG
+			}
+			Pass
+			{
+				ZWrite Off
+
+				CGPROGRAM
+				#pragma vertex vert03
+				#pragma fragment frag
+
+				half4 frag(v2f i) : COLOR{
+					return _OutlineColor;
+				}
+				ENDCG
+			}
+			Pass
+			{
+				ZWrite Off
+
+				CGPROGRAM
+				#pragma vertex vert04
+				#pragma fragment frag
+
+				half4 frag(v2f i) : COLOR{
+					return _OutlineColor;
+				}
+				ENDCG
+			}
+			Pass
+			{
+				ZWrite On
+
+				Material{
+					Diffuse[_Color]
+					Ambient[_Color]
+				}
+
+				Lighting On
+
+				SetTexture[_MainTex]
+				{
+					ConstantColor[_Color]
+				}
+
+				SetTexture[_MainTex]{
+					Combine previous * primary DOUBLE
+				}
+			}
+		}
+
 }

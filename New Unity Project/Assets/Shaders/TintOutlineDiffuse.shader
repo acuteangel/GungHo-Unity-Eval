@@ -28,8 +28,16 @@ Shader "Custom/DiffuseOutline" {
 		float4 _OutlineColor;
 		float _OutlineWidth;
 
-		v2f vert(appdata v) {
+		v2f vert01(appdata v) {
 			v.vertex.xyz *= _OutlineWidth;
+
+			v2f o;
+			o.pos = UnityObjectToClipPos(v.vertex);
+			return o;
+		}
+
+		v2f vert02(appdata v) {
+			v.vertex.xyz *= 2 - _OutlineWidth;
 
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);
@@ -40,12 +48,13 @@ Shader "Custom/DiffuseOutline" {
 
 			SubShader
 		{
+			Tags {"Queue" = "Transparent"}
 			Pass
 			{
 				ZWrite Off
 
 				CGPROGRAM
-				#pragma vertex vert
+				#pragma vertex vert01
 				#pragma fragment frag
 
 				half4 frag(v2f i) : COLOR{
@@ -53,27 +62,42 @@ Shader "Custom/DiffuseOutline" {
 				}
 				ENDCG
 			}
-
 			Pass
+	{
+		Tags { "LightMode" = "ForwardBase" }
+		CGPROGRAM
+			#pragma vertex vert2
+			#pragma fragment frag2
+
+			#include "UnityCG.cginc"
+			
+			float4 _LightColor0;
+
+			float4 _Color;
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+
+			v2f vert2(appdata IN)
 			{
-				ZWrite On
-
-				Material{
-					Diffuse[_Color]
-					Ambient[_Color]
-				}
-
-				Lighting On
-
-				SetTexture[_MainTex]
-				{
-					ConstantColor[_Color]
-				}
-
-				SetTexture[_MainTex]{
-					Combine previous * primary DOUBLE
-				}
+				v2f OUT;
+				OUT.pos = UnityObjectToClipPos(IN.vertex);
+				OUT.normal = mul(float4(IN.normal, 0.0), unity_ObjectToWorld).xyz;
+				OUT.texcoord = TRANSFORM_TEX(IN.texcoord, _MainTex);
+				return OUT;
 			}
+
+			float4 frag2(v2f IN) : COLOR
+			{
+				float4 texColor = tex2D(_MainTex, IN.texcoord);
+
+				float3 normalDirection = normalize(IN.normal);
+				float3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
+				float3 diffuse = _LightColor0.rgb * _Color.rgb * max(0.0, dot(normalDirection, lightDirection));
+
+				return float4(diffuse,1) * texColor;
+			}
+		ENDCG
+	}
 		}
 
 }

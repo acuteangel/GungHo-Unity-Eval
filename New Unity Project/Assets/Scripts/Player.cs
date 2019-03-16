@@ -7,6 +7,7 @@ public class Player : PhysicsObject
     public float maxSpeed = 7;
     public float jumpTakeOffSpeed = 7;
     public float dashSpeed = 140;
+    public Vector2 startPosition = Vector2.zero;
 
     private Transform model;
     private Animator animator;
@@ -28,7 +29,7 @@ public class Player : PhysicsObject
     protected override void ComputeVelocity()
     {
         if (transform.position.y < -20)
-            transform.position = Vector3.zero;
+            transform.position = new Vector3(startPosition.x, startPosition.y, transform.position.z);
         if (grounded)
         {            
             canJump = true;            
@@ -75,7 +76,9 @@ public class Player : PhysicsObject
             animator.SetBool("jumping", false);
         }
         if (Input.GetButtonDown("Fire1") && canDash)
-        {            
+        {
+            if (animator.GetBool("jumping"))
+                animator.SetBool("jumping", false);
             dashing = true;
             canDash = false;
             StartCoroutine(Dash(facingRight));
@@ -113,7 +116,9 @@ public class Player : PhysicsObject
     IEnumerator Jump()
     {
         jumping = true;
-        yield return new WaitForSeconds(.2f);        
+        yield return new WaitForSeconds(.2f);
+        if (grounded)
+            canDash = true;
         jumping = false;
         velocity.y = jumpTakeOffSpeed;
         canJump = false;
