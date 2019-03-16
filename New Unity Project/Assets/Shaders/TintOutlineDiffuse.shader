@@ -8,6 +8,9 @@ Shader "Custom/DiffuseOutline" {
 		_Color("Main Color", Color) = (1,1,1,1)
 		_OutlineColor("Outline color", Color) = (1, 1, 1, 1)
 		_OutlineWidth("Outline width", Range(1.0, 5.0)) = 1.01
+		[Toggle(OUTLINE_ON)] _Outline("Outline?", Int) = 1
+		[Toggle(COLOR_ON)] _Tint("Color?", Int) = 1
+		[Toggle(DIFFUSE_ON)] _Diffuse("Diffuse?", Int) = 1
 	}
 
 		CGINCLUDE
@@ -27,9 +30,10 @@ Shader "Custom/DiffuseOutline" {
 
 		float4 _OutlineColor;
 		float _OutlineWidth;
+		float _Outline;
 
 		v2f vert01(appdata v) {
-			v.vertex.xyz *= _OutlineWidth;
+			v.vertex.xyz *= _OutlineWidth * _Outline;
 
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);
@@ -49,8 +53,10 @@ Shader "Custom/DiffuseOutline" {
 			SubShader
 		{
 			Tags {"Queue" = "Transparent"}
+			
 			Pass
 			{
+
 				ZWrite Off
 
 				CGPROGRAM
@@ -62,6 +68,7 @@ Shader "Custom/DiffuseOutline" {
 				}
 				ENDCG
 			}
+			
 			Pass
 	{
 		Tags { "LightMode" = "ForwardBase" }
@@ -76,6 +83,8 @@ Shader "Custom/DiffuseOutline" {
 			float4 _Color;
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
+			float _Tint;
+			float _Diffuse;
 
 			v2f vert2(appdata IN)
 			{
@@ -92,7 +101,11 @@ Shader "Custom/DiffuseOutline" {
 
 				float3 normalDirection = normalize(IN.normal);
 				float3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
-				float3 diffuse = _LightColor0.rgb * _Color.rgb * max(0.0, dot(normalDirection, lightDirection));
+				float3 diffuse = _LightColor0.rgb;
+				if (_Tint == 1)
+					diffuse *= _Color.rgb;
+				if (_Diffuse == 1)
+					diffuse *= max(0.0, dot(normalDirection, lightDirection));
 
 				return float4(diffuse,1) * texColor;
 			}

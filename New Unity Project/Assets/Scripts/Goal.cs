@@ -10,7 +10,8 @@ public class Goal : MonoBehaviour
         if (player != null)
         {
             player.enabled = false;
-            GameManager.instance.Invoke("NextScene", 1f);
+            GetComponent<AudioSource>().Play();
+            GameManager.instance.Invoke("NextScene", 1.5f);
         }
     }
 }
