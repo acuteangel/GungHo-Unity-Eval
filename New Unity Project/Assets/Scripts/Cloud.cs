@@ -22,9 +22,9 @@ public class Cloud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (transform.position.x < bottomLeft.x)
-            transform.position = new Vector3(topRight.x, Random.Range(bottomLeft.y, topRight.y), transform.position.z);
-        transform.position -= new Vector3(Time.deltaTime * speed, 0);
+        if (transform.position.x > topRight.x)
+            transform.position = new Vector3(bottomLeft.x, Random.Range(bottomLeft.y, topRight.y), transform.position.z);
+        transform.position += new Vector3(Time.deltaTime * speed, 0);
 
     }
 }
