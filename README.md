@@ -1,5 +1,8 @@
 # GungHo-Unity-Eval
 
+![gif of level 1](gifs/level1.gif)
+![gif of level 4](gifs/level4.gif)
+
 To play: Download and unzip repository. The game is in the Builds folder of the New Unity Project directory (Builds.app for MacOS).
 
 For my assignment I decided to make a 2D platformer. I decided to use the provided robot model for the player character. The design of the robot gave me the idea to make his movement feel stiff and clunky. I used this element to add challenge and frustration to the levels.
